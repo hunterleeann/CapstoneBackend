@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Class" ALTER COLUMN "userId" DROP NOT NULL;

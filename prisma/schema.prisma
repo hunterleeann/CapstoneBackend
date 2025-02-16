@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  userName String  @unique
+  email    String  @unique
+  password String 
+  //admin Boolean @default(false) 
+  classes  Class[] @relation("UserClasses")
+  Review   Review[]
+}
+
+model Class {
+  classId   String  @id @unique
+  classType String
+  hour      String
+  day       String
+  users     User[]  @relation("UserClasses") 
+  Review   Review[]
+}
+
+model Review {
+  id        String @id @default(uuid())
+  //videoId? 
+  revUserId String //key
+  score     Int
+  comment   String
+  user      User   @relation(fields: [revUserId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  classId   String
+  class     Class @relation(fields: [classId], references: [classId], onUpdate: Cascade, onDelete: Cascade)
+}
+
+//model Times{ 
+
+//User User []
+//}
