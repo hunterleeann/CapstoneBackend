@@ -2,12 +2,12 @@ const { disconnect } = require("process");
 const { prisma } = require("./common");
 
 const getCustomer = async (id) => {
-  const response = await prisma.User.findFirstOrThrow({
+  const customer = await prisma.User.findUnique({
     where: {
       id,
     },
   });
-  return response;
+  return customer;
 };
 
 const createNewUser = async (userName, email, password) => {
@@ -36,7 +36,7 @@ const getClasses = async () => {
 };
 
 const addClass = async (id, classId) => {
-  return await prisma.user.update({
+  const response = await prisma.user.update({
     where: { id },
     data: {
       classes: {
@@ -44,6 +44,7 @@ const addClass = async (id, classId) => {
       },
     },
   });
+  return response;
 };
 
 const getUserClass = async (classType) => {
@@ -58,7 +59,7 @@ const getUserClass = async (classType) => {
 
 const getAllClasses = async () => {
   //check
-  const response = await prisma.class.findMany({
+  const response = await prisma.class.findAll({
     include: {
       users: true,
     },
@@ -108,6 +109,20 @@ const removeRev = async (id) => {
   });
 };
 
+const getAccount = async (id) => {
+  const response = await prisma.user.findFirstOrThrow({
+    where: {
+      id
+    },
+    select: {
+      userName: true, 
+      email: true,
+      classes: true, 
+    }
+  });
+  return response;
+};
+
 module.exports = {
   getCustomer,
   createNewUser,
@@ -119,5 +134,6 @@ module.exports = {
   classReviews,
   getClassRevs,
   removeRev,
-  removeClass, 
+  removeClass,
+  getAccount,
 };

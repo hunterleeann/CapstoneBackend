@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const JWT_SECRET = process.env.JWT_SECRET || "1234";
 const jwt = require("jsonwebtoken");
 const { prisma } = require("./common");
+const cors = require("cors");
 
 const {
   getCustomer,
@@ -20,11 +21,16 @@ const {
   classReviews,
   getClassRevs,
   removeRev,
+  getAccount,
 } = require("./db");
 
 const setToken = (id) => {
   return jwt.sign({ id }, JWT_SECRET, { expiresIn: "8h" });
 };
+
+app.use(cors());
+app.use(express.json()); // 🔥 Ensure this is included!
+app.use(express.urlencoded({ extended: true }));
 
 //createClassType();
 
@@ -50,6 +56,7 @@ const isLoggedIn = async (req, res, next) => {
 };
 
 app.post("/auth/register", async (req, res, next) => {
+  //works
   try {
     const { userName, email, password } = req.body;
     const salt = await bcrypt.genSalt(10);
@@ -63,6 +70,7 @@ app.post("/auth/register", async (req, res, next) => {
 });
 
 app.post("/auth/login", async (req, res, next) => {
+  //works
   try {
     const { email, password } = req.body;
     const customer = await getUser(email);
@@ -79,6 +87,7 @@ app.post("/auth/login", async (req, res, next) => {
 });
 
 app.get("/classes", async (req, res, next) => {
+  //works
   try {
     const response = await getClasses();
     res.status(200).send(response);
@@ -87,17 +96,24 @@ app.get("/classes", async (req, res, next) => {
   }
 });
 
-app.put("/classes/:classId/:id", isLoggedIn, async (req, res, next) => {
-  try {
-    const { classId, id } = req.params;
-    const response = await addClass(id, classId);
-    res.status(200).send(response);
-  } catch (error) {
-    next(error);
+app.put(
+  "/classes/:classId",
+  isLoggedIn, async (req, res, next) => {
+    //works
+    try {
+      const { classId } = req.params;
+      const id = req.customer.id;
+      //const customer = await getCustomer(id);
+      const response = await addClass(id, classId);
+      res.status(200).send(response);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
-app.get("/classes/:classType", isLoggedIn, async (req, res, next) => {
+app.get("/classes/:classType", async (req, res, next) => {
+  //works
   try {
     const { classType } = req.params;
     const response = await getUserClass(classType);
@@ -109,6 +125,7 @@ app.get("/classes/:classType", isLoggedIn, async (req, res, next) => {
 
 app.get("/classes/users", async (req, res, next) => {
   try {
+    //returns empty array
     const response = await getAllClasses();
     res.status(200).send(response);
   } catch (error) {
@@ -116,9 +133,10 @@ app.get("/classes/users", async (req, res, next) => {
   }
 });
 
-app.delete("/classes/:classId/:id", isLoggedIn, async (req, res, next) => {
+app.delete("/classes/:classId", isLoggedIn, async (req, res, next) => {
   try {
-    const { classId, id } = req.params;
+    const { classId } = req.params;
+    const id = req.customer.id;
     const response = await removeClass(id, classId);
     res.status(200).send(response);
   } catch (error) {
@@ -131,7 +149,8 @@ app.put(
   isLoggedIn,
   async (req, res, next) => {
     try {
-      const { classId, userId } = req.params;
+      const { classId } = req.params;
+      const userId = req.customer.id;
       const { score, comment } = req.body;
 
       const response = await classReviews(classId, userId, score, comment);
@@ -157,7 +176,8 @@ app.delete(
   "/classes/reviews/:id",
   /*isAdmin,*/ async (req, res, next) => {
     try {
-      const { id } = req.params;
+     // const { id } = req.params;
+     const id = req.customer.id;
       const response = await removeRev(id);
       res.status(200).send(response);
     } catch (error) {
@@ -166,10 +186,20 @@ app.delete(
   }
 );
 
+app.get("/account", isLoggedIn, async (req, res, next) => {
+  try {
+    const id = req.customer.id;
+    //const { id } = req.params;
+    console.log("Fetching account for user:", req.customer.id);
+    const response = await getAccount(id);
+    res.status(200).send(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`I am listening on port number ${PORT}`);
 });
 
-////mock sign up for classes
-// youtube link eye something? to get the address to display or aws buckets
-//two different repos for front end and back end
+
