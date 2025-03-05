@@ -96,21 +96,18 @@ app.get("/classes", async (req, res, next) => {
   }
 });
 
-app.put(
-  "/classes/:classId",
-  isLoggedIn, async (req, res, next) => {
-    //works
-    try {
-      const { classId } = req.params;
-      const id = req.customer.id;
-      //const customer = await getCustomer(id);
-      const response = await addClass(id, classId);
-      res.status(200).send(response);
-    } catch (error) {
-      next(error);
-    }
+app.put("/classes/:classId", isLoggedIn, async (req, res, next) => {
+  //works
+  try {
+    const { classId } = req.params;
+    const id = req.customer.id;
+    //const customer = await getCustomer(id);
+    const response = await addClass(id, classId);
+    res.status(200).send(response);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 app.get("/classes/:classType", async (req, res, next) => {
   //works
@@ -133,10 +130,11 @@ app.get("/classes/users", async (req, res, next) => {
   }
 });
 
-app.delete("/classes/:classId", isLoggedIn, async (req, res, next) => {
+app.delete("/account/:classId", isLoggedIn, async (req, res, next) => {
   try {
     const { classId } = req.params;
     const id = req.customer.id;
+    console.log(id);
     const response = await removeClass(id, classId);
     res.status(200).send(response);
   } catch (error) {
@@ -145,7 +143,7 @@ app.delete("/classes/:classId", isLoggedIn, async (req, res, next) => {
 });
 
 app.put(
-  "/classes/:classId/reviews/:userId",
+  "/classes/:classId/reviews", ///classes/:classId/reviews/:userId
   isLoggedIn,
   async (req, res, next) => {
     try {
@@ -176,8 +174,8 @@ app.delete(
   "/classes/reviews/:id",
   /*isAdmin,*/ async (req, res, next) => {
     try {
-     // const { id } = req.params;
-     const id = req.customer.id;
+      // const { id } = req.params;
+      const id = req.customer.id;
       const response = await removeRev(id);
       res.status(200).send(response);
     } catch (error) {
@@ -201,5 +199,3 @@ app.get("/account", isLoggedIn, async (req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`I am listening on port number ${PORT}`);
 });
-
-

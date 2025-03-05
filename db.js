@@ -99,6 +99,13 @@ const getClassRevs = async (classId) => {
     where: {
       classId: classId,
     },
+    include: {
+      user: {
+        select: {
+          userName: true,
+        },
+      },
+    },
   });
   return response;
 };
@@ -112,13 +119,13 @@ const removeRev = async (id) => {
 const getAccount = async (id) => {
   const response = await prisma.user.findFirstOrThrow({
     where: {
-      id
+      id,
     },
     select: {
-      userName: true, 
+      userName: true,
       email: true,
-      classes: true, 
-    }
+      classes: true,
+    },
   });
   return response;
 };
