@@ -82,14 +82,14 @@ const classReviews = async (classId, userId, score, comment) => {
   const response = await prisma.review.create({
     data: {
       score,
-      comment,
+      comment, 
       class: {
-        connect: { classId: classId },
+        connect: { classId: classId }, 
       },
       user: {
         connect: { id: userId },
-      },
     },
+  },
   });
   return response;
 };
@@ -100,6 +100,11 @@ const getClassRevs = async (classId) => {
       classId: classId,
     },
     include: {
+      class: {
+        select: {
+          classType: true, 
+        },
+      },
       user: {
         select: {
           userName: true,
@@ -125,7 +130,89 @@ const getAccount = async (id) => {
       userName: true,
       email: true,
       classes: true,
+      //   include:{
+      //     Review: {
+      //       select: {
+      //         score: true,
+      //         comment: true,
+      //     }
+      //   }
+      // }
     },
+  });
+  return response;
+};
+
+const getUserRevs = async (userId) => {
+  const response = await prisma.review.findMany({
+    where: {
+      revUserId: userId,
+    },
+    select: {
+      score: true,
+      comment: true,
+      id: true,
+      class: {
+        select: {
+          classType: true,
+          classId: true,
+        },
+      },
+    },
+  });
+  return response;
+};
+
+const findRev = async (classId, id) => {
+  return await prisma.review.findFirstOrThrow({
+    where: {
+      id,
+      classId,
+      // },
+      // select: {
+      //   score: true,
+      //   comment: true,
+      //   class: {
+      //     select: {
+      //       classId: true,
+      //       classType: true,
+      //     }
+      //   },
+      //   user: {
+      //     select: {
+      //       userName: true,
+      //     }
+      //   }
+    },
+  });
+};
+
+const getAllReviews = async () => {
+  const response = await prisma.review.findMany({
+    select: {
+      score: true,
+      comment: true,
+      id: true,
+      class: {
+        select: {
+          classType: true,
+          classId: true,
+        },
+      },
+      user: {
+        select: {
+          userName: true,
+        },
+      },
+    },
+  });
+  return response;
+}; 
+
+const addLike = async (likes, id) => {
+  const response = prisma.class.update({
+    where: { id },
+    data: { likes },
   });
   return response;
 };
@@ -143,4 +230,8 @@ module.exports = {
   removeRev,
   removeClass,
   getAccount,
+  getUserRevs,
+  getAllReviews,
+  findRev, 
+  addLike, 
 };

@@ -27,7 +27,9 @@ model Class {
   classId   String  @id @unique
   classType String
   hour      String
-  day       String
+  day       String 
+  likes     Int 
+  description   String 
   users     User[]  @relation("UserClasses") 
   Review   Review[]
 }
@@ -36,6 +38,7 @@ model Review {
   id        String @id @default(uuid())
   //videoId? 
   revUserId String //key
+  date      DateTime  @default(now())
   score     Int
   comment   String
   user      User   @relation(fields: [revUserId], references: [id], onUpdate: Cascade, onDelete: Cascade)

@@ -10,7 +10,8 @@ const { prisma } = require("./common");
 const cors = require("cors");
 
 const {
-  getCustomer,
+  getCustomer, 
+  getAllReviews, 
   createNewUser,
   getUser,
   getClasses,
@@ -21,18 +22,32 @@ const {
   classReviews,
   getClassRevs,
   removeRev,
-  getAccount,
+  getAccount, 
+  getUserRevs, 
+  findRev, 
+  addLike, 
 } = require("./db");
 
 const setToken = (id) => {
   return jwt.sign({ id }, JWT_SECRET, { expiresIn: "8h" });
 };
 
-app.use(cors());
-app.use(express.json()); // 🔥 Ensure this is included!
+//app.use(cors());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //createClassType();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+//app.options("*", cors()); 
+
 
 const isLoggedIn = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -46,7 +61,7 @@ const isLoggedIn = async (req, res, next) => {
     if (!customer) {
       return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
-    req.customer = customer;
+    req.customer = customer; 
     next();
   } catch (error) {
     return res
@@ -149,7 +164,7 @@ app.put(
     try {
       const { classId } = req.params;
       const userId = req.customer.id;
-      const { score, comment } = req.body;
+      const { score, comment} = req.body;
 
       const response = await classReviews(classId, userId, score, comment);
 
@@ -164,6 +179,16 @@ app.get("/classes/:classId/reviews", async (req, res, next) => {
   try {
     const { classId } = req.params;
     const response = await getClassRevs(classId);
+    res.status(200).send(response);
+  } catch (error) {
+    next(error);
+  }
+}); 
+
+app.get("/account/reviews", isLoggedIn, async (req, res, next) => {
+  try {
+    const userId = req.customer.id;
+    const response = await getUserRevs(userId);
     res.status(200).send(response);
   } catch (error) {
     next(error);
@@ -184,12 +209,49 @@ app.delete(
   }
 );
 
+
+app.get(
+  "/classes/:classId/reviews/:id", isLoggedIn,
+  /*isAdmin,*/ async (req, res, next) => {
+    try {
+      const { classId, id } = req.params;
+      //const id = req.customer.id;
+      const response = await findRev(classId, id);
+      res.status(200).send(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 app.get("/account", isLoggedIn, async (req, res, next) => {
   try {
     const id = req.customer.id;
     //const { id } = req.params;
     console.log("Fetching account for user:", req.customer.id);
     const response = await getAccount(id);
+    res.status(200).send(response);
+  } catch (error) {
+    next(error);
+  }
+}); 
+
+app.get("/reviews",  async (req, res, next) => {
+  try {
+    //const id = req.customer.id;
+    //const { id } = req.params;
+    const response = await getAllReviews();
+    res.status(200).send(response);
+  } catch (error) {
+    next(error);
+  }
+}); 
+
+app.patch("/classes",  async (req, res, next) => {
+  try {
+    const id = req.customer.id;
+    const { likes } = req.body;
+    const response = await addLike(likes, id);
     res.status(200).send(response);
   } catch (error) {
     next(error);
