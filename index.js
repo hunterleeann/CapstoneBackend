@@ -10,8 +10,8 @@ const { prisma } = require("./common");
 const cors = require("cors");
 
 const {
-  getCustomer, 
-  getAllReviews, 
+  getCustomer,
+  getAllReviews,
   createNewUser,
   getUser,
   getClasses,
@@ -22,10 +22,12 @@ const {
   classReviews,
   getClassRevs,
   removeRev,
-  getAccount, 
-  getUserRevs, 
-  findRev, 
-  addLike, 
+  getAccount,
+  getUserRevs,
+  findRev,
+  addLike,
+  updateEmail,
+  editRev,
 } = require("./db");
 
 const setToken = (id) => {
@@ -46,8 +48,7 @@ app.use(
   })
 );
 
-//app.options("*", cors()); 
-
+//app.options("*", cors());
 
 const isLoggedIn = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -61,7 +62,7 @@ const isLoggedIn = async (req, res, next) => {
     if (!customer) {
       return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
-    req.customer = customer; 
+    req.customer = customer;
     next();
   } catch (error) {
     return res
@@ -164,7 +165,7 @@ app.put(
     try {
       const { classId } = req.params;
       const userId = req.customer.id;
-      const { score, comment} = req.body;
+      const { score, comment } = req.body;
 
       const response = await classReviews(classId, userId, score, comment);
 
@@ -183,7 +184,7 @@ app.get("/classes/:classId/reviews", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}); 
+});
 
 app.get("/account/reviews", isLoggedIn, async (req, res, next) => {
   try {
@@ -196,12 +197,12 @@ app.get("/account/reviews", isLoggedIn, async (req, res, next) => {
 });
 
 app.delete(
-  "/classes/reviews/:id",
-  /*isAdmin,*/ async (req, res, next) => {
+  "/myReviews/:revId",
+  /*isLoggedIn,*/ async (req, res, next) => {
     try {
-      // const { id } = req.params;
-      const id = req.customer.id;
-      const response = await removeRev(id);
+      const { revId } = req.params;
+      // const id = req.customer.id;
+      const response = await removeRev(revId);
       res.status(200).send(response);
     } catch (error) {
       next(error);
@@ -209,9 +210,24 @@ app.delete(
   }
 );
 
+app.patch(
+  "/myReviews/:revId",
+  /*isLoggedIn,*/ async (req, res, next) => {
+    try {
+      const { revId } = req.params;
+      const { score, comment } = req.body;
+      // const id = req.customer.id;
+      const response = await editRev(revId, score, comment);
+      res.status(200).send(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 app.get(
-  "/classes/:classId/reviews/:id", isLoggedIn,
+  "/classes/:classId/reviews/:id",
+  isLoggedIn,
   /*isAdmin,*/ async (req, res, next) => {
     try {
       const { classId, id } = req.params;
@@ -234,9 +250,9 @@ app.get("/account", isLoggedIn, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}); 
+});
 
-app.get("/reviews",  async (req, res, next) => {
+app.get("/reviews", async (req, res, next) => {
   try {
     //const id = req.customer.id;
     //const { id } = req.params;
@@ -245,13 +261,26 @@ app.get("/reviews",  async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}); 
+});
 
-app.patch("/classes",  async (req, res, next) => {
+app.patch("/classes", async (req, res, next) => {
   try {
     const id = req.customer.id;
     const { likes } = req.body;
     const response = await addLike(likes, id);
+    res.status(200).send(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch("/account", isLoggedIn, async (req, res, next) => {
+  try {
+    const id = req.customer.id;
+    const { email } = req.body;
+    //const { id } = req.params;
+    // console.log("Fetching account for user:", req.customer.id);
+    const response = await updateEmail(id, email);
     res.status(200).send(response);
   } catch (error) {
     next(error);

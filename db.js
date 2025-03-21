@@ -115,9 +115,9 @@ const getClassRevs = async (classId) => {
   return response;
 };
 
-const removeRev = async (id) => {
+const removeRev = async (revId) => {
   return await prisma.review.delete({
-    where: { id },
+    where: { id: revId },
   });
 };
 
@@ -215,6 +215,31 @@ const addLike = async (likes, id) => {
     data: { likes },
   });
   return response;
+}; 
+
+const updateEmail = async (id, email) => {
+  const response = prisma.User.update({
+    data: {
+      email
+    },
+    where: {
+      id,
+    },
+  });
+  return response;
+}; 
+
+const editRev = async (revId, score, comment) => {
+  const response = prisma.review.update({
+    data: {
+      score,
+      comment,
+    },
+    where: {
+      id: revId, 
+    },
+  });
+  return response;
 };
 
 module.exports = {
@@ -234,4 +259,6 @@ module.exports = {
   getAllReviews,
   findRev, 
   addLike, 
+  updateEmail, 
+  editRev, 
 };
