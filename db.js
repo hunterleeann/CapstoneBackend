@@ -1,5 +1,5 @@
 const { disconnect } = require("process");
-const { prisma } = require("./common");
+const { prisma } = require("./common"); 
 
 const getCustomer = async (id) => {
   const customer = await prisma.User.findUnique({
@@ -82,14 +82,14 @@ const classReviews = async (classId, userId, score, comment) => {
   const response = await prisma.review.create({
     data: {
       score,
-      comment, 
+      comment,
       class: {
-        connect: { classId: classId }, 
+        connect: { classId: classId },
       },
       user: {
         connect: { id: userId },
+      },
     },
-  },
   });
   return response;
 };
@@ -102,7 +102,7 @@ const getClassRevs = async (classId) => {
     include: {
       class: {
         select: {
-          classType: true, 
+          classType: true,
         },
       },
       user: {
@@ -207,7 +207,7 @@ const getAllReviews = async () => {
     },
   });
   return response;
-}; 
+};
 
 const addLike = async (likes, id) => {
   const response = prisma.class.update({
@@ -215,19 +215,19 @@ const addLike = async (likes, id) => {
     data: { likes },
   });
   return response;
-}; 
+};
 
 const updateEmail = async (id, email) => {
   const response = prisma.User.update({
     data: {
-      email
+      email,
     },
     where: {
       id,
     },
   });
   return response;
-}; 
+};
 
 const editRev = async (revId, score, comment) => {
   const response = prisma.review.update({
@@ -236,7 +236,7 @@ const editRev = async (revId, score, comment) => {
       comment,
     },
     where: {
-      id: revId, 
+      id: revId,
     },
   });
   return response;
@@ -257,8 +257,8 @@ module.exports = {
   getAccount,
   getUserRevs,
   getAllReviews,
-  findRev, 
-  addLike, 
-  updateEmail, 
-  editRev, 
+  findRev,
+  addLike,
+  updateEmail,
+  editRev,
 };

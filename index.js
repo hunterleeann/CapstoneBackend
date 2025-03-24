@@ -35,14 +35,16 @@ const setToken = (id) => {
 };
 
 //app.use(cors());
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //createClassType();
+//"http://localhost:5173"
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Replace with your frontend URL
+    origin: "https://steady-medovik-af726e.netlify.app/", 
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -290,3 +292,5 @@ app.patch("/account", isLoggedIn, async (req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`I am listening on port number ${PORT}`);
 });
+
+
