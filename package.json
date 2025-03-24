@@ -19,7 +19,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "node seed.js",
     "dev": "nodemon index.js",
-    "build": "node server/app.js"
+    "postinstall": "prisma generate && prisma migrate deploy && npm run seed"
   },
   "keywords": [],
   "author": "",
