@@ -35,7 +35,7 @@ const setToken = (id) => {
 };
 
 //app.use(cors());
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,11 +44,17 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://steady-medovik-af726e.netlify.app/", 
+    origin: "https://steady-medovik-af726e.netlify.app",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 //app.options("*", cors());
 
@@ -292,5 +298,3 @@ app.patch("/account", isLoggedIn, async (req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`I am listening on port number ${PORT}`);
 });
-
-
